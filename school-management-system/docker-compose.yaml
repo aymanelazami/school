@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database service
+  postgres:
+    image: postgres:18
+    container_name: school-management-system-db
+    environment:
+      POSTGRES_DB: school_ms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5400:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  # Express application service
+  app:
+    build: .
+    container_name: school-management-system-express
+    ports:
+      - "3400:3400"
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@postgres:5432/school_ms
+      - APP_PORT=3400
+      - NODE_ENV=development
+    volumes:
+      # Bind mount for live code reloading
+      - .:/app-dire
+      - /app-dire/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    # Health check to ensure app is running
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3400/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx-service:
+    image: nginx
+    container_name: nginx-reverse-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-config:/etc/nginx/conf.d  
+      - ./ssl:/etc/nginx/ssl
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+# volumes for data persistence
+volumes:
+  postgres_data:
+
+# Custom network for services to communicate
+networks:
+  app-network:
+    driver: bridge

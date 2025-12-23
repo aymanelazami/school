@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+.react-router/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Database
+drizzle/
+
+# Archive files (not needed in repo)
+*.rar
+*.zip
+
+# Firebase
+serviceAccountKey.json
+
+# Misc
+.cache/
+tmp/
